@@ -1,33 +1,26 @@
-set(proj elastix)
+set(proj SimpleElastix)
 set(ep_common_cxx_flags "${CMAKE_CXX_FLAGS_INIT} ${ADDITIONAL_CXX_FLAGS}")
 # Set dependency list
-set(${proj}_DEPENDS "")
+set(${proj}_DEPENDS elastix)
 
 # Include dependent projects if any
 ExternalProject_Include_Dependencies(${proj} PROJECT_VAR proj)
-
-if(${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
-  message(FATAL_ERROR "Enabling ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj} is not supported !")
-endif()
-
-# Sanity checks
-if(DEFINED elastix_DIR AND NOT EXISTS ${elastix_DIR})
-  message(FATAL_ERROR "elastix_DIR variable is defined but corresponds to nonexistent directory")
-endif()
 
 if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 
   if(NOT DEFINED git_protocol)
     set(git_protocol "git")
   endif()
+  
 
   set(${proj}_INSTALL_DIR ${CMAKE_BINARY_DIR}/${proj}-install)
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
-
+  set(${proj}_RUNTIME_DIR ${CMAKE_BINARY_DIR}/${Slicer_THIRDPARTY_BIN_DIR})
+  
   set(${proj}_cxx_flags "${ep_common_cxx_flags}")
   
   if (APPLE)
-    set(${proj}_cxx_flags "${${proj}_cxx_flags} -Wno-inconsistent-missing-override")
+    set(${proj}_cxx_flags "${ep_common_cxx_flags} -Wno-inconsistent-missing-override")
   endif()
 
   ExternalProject_Add(${proj}
@@ -37,40 +30,42 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     #SOURCE_SUBDIR src # requires CMake 3.7 or later
     BINARY_DIR ${proj}-build
     INSTALL_DIR ${${proj}_INSTALL_DIR}
-    GIT_REPOSITORY "${git_protocol}://github.com/SuperElastix/elastix.git"
-    GIT_TAG "465fad42a9b4f2861ee034f098c9c71074881f2c"
+    GIT_REPOSITORY "${git_protocol}://github.com/pcarnah/SimpleElastix.git"
+    #GIT_TAG "0ccc12fcc55347018b6ad60e664eeb32f9829fb7"
     #--Patch step-------------
-    PATCH_COMMAND ${CMAKE_COMMAND} -Delastix_SRC_DIR=${CMAKE_BINARY_DIR}/${proj}
-      -P ${CMAKE_CURRENT_LIST_DIR}/${proj}_patch.cmake
+    PATCH_COMMAND ""
     #--Configure step-------------
     CMAKE_CACHE_ARGS
       -DSubversion_SVN_EXECUTABLE:STRING=${Subversion_SVN_EXECUTABLE}
       -DGIT_EXECUTABLE:STRING=${GIT_EXECUTABLE}
+	  -DSimpleITK_DIR:STRING=${SimpleITK_DIR}
       -DITK_DIR:STRING=${ITK_DIR}
-      -DUSE_KNNGraphAlphaMutualInformationMetric:BOOL=OFF
+	  -DElastix_DIR:STRING=${elastix_DIR}
       -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
       -DCMAKE_CXX_FLAGS:STRING=${${proj}_cxx_flags}
       -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
       -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
       -DCMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DSWIG_EXECUTABLE:PATH=${SWIG_EXECUTABLE}
+      -DPYTHON_EXECUTABLE:PATH=${PYTHON_EXECUTABLE}
+      -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
+      -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE_DIR}
+	  -DSimpleITK_PYTHON_USE_VIRTUALENV:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
-	  -DELASTIX_BUILD_EXECUTABLE:BOOL=OFF
-	  -DUSE_CMAEvolutionStrategy:BOOL=ON
-	  -DUSE_LinearResampleInterpolator:BOOL=ON
-	  -DUSE_Simplex:BOOL=ON
-	  -DUSE_SimultaneousPerturbation:BOOL=ON
-	  -DUSE_StatisticalShapePenalty:BOOL=ON
-      -DCMAKE_MACOSX_RPATH:BOOL=0
-      # location of elastix.exe and transformix.exe in the build tree:
+      -DBUILD_DOXYGEN:BOOL=OFF
+	  -DBUILD_EXAMPLES:BOOL=OFF
+      -DWRAP_CSHARP:BOOL=OFF 
+	  -DWRAP_DEFAULT:BOOL=OFF 
+	  -DWRAP_JAVA:BOOL=OFF 
+	  -DSimpleITK_INT64_PIXELIDS:BOOL=OFF 
+	  -DWRAP_PYTHON:BOOL=ON 
+	  -DBUILD_SHARED_LIBS:BOOL=ON
       -DCMAKE_RUNTIME_OUTPUT_DIRECTORY:PATH=${CMAKE_BINARY_DIR}/${Slicer_THIRDPARTY_BIN_DIR}
       -DCMAKE_LIBRARY_OUTPUT_DIRECTORY:PATH=${CMAKE_BINARY_DIR}/${Slicer_THIRDPARTY_LIB_DIR}
       -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY:PATH=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
-      -DELASTIX_RUNTIME_DIR:STRING=${Slicer_INSTALL_THIRDPARTY_LIB_DIR}
-      -DELASTIX_LIBRARY_DIR:STRING=${Slicer_INSTALL_THIRDPARTY_LIB_DIR}
     #--Build step-----------------
     #--Install step-----------------
-    # Don't perform installation at the end of the build
     INSTALL_COMMAND ""
     DEPENDS
       ${${proj}_DEPENDS}
@@ -79,7 +74,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
   #if(UNIX)
   #  set(${proj}_DIR ${${proj}_INSTALL_DIR}/share/elastix)
   #endif()
-
+  
 else()
   ExternalProject_Add_Empty(${proj} DEPENDS ${${proj}_DEPENDS})
 endif()
