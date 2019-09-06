@@ -46,8 +46,12 @@ install(FILES
 	${SimpleElastix_DIR}/Wrapping/Python/SimpleElastix.py
 	${SimpleElastix_DIR}/Wrapping/Python/_SimpleElastix.pyd
 	${SimpleElastix_DIR}/Wrapping/Python/__init__.py
-	${SimpleElastix_RUNTIME_DIRS}/$<CONFIG>/ElastixImageFilter-1.2.dll
-	${SimpleElastix_RUNTIME_DIRS}/$<CONFIG>/TransformixImageFilter-1.2.dll
+DESTINATION ${Slicer_THIRDPARTY_LIB_DIR}/qt-scripted-modules/SimpleElastix/
+COMPONENT RuntimeLibraries
+)
+
+install(DIRECTORY
+	${SimpleElastix_RUNTIME_DIRS}/$<CONFIG>/
 DESTINATION ${Slicer_THIRDPARTY_LIB_DIR}/qt-scripted-modules/SimpleElastix/
 COMPONENT RuntimeLibraries
 )
