@@ -38,7 +38,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
     BINARY_DIR ${proj}-build
     INSTALL_DIR ${${proj}_INSTALL_DIR}
     GIT_REPOSITORY "${git_protocol}://github.com/SuperElastix/elastix.git"
-    GIT_TAG "9273061b7fe67a2e08f5b4582b0686a2d25026b9"
+    GIT_TAG "1c0244fdab2c1277779a7b5efaf82b5beeae3af5"
     #--Patch step-------------
     PATCH_COMMAND ${CMAKE_COMMAND} -Delastix_SRC_DIR=${CMAKE_BINARY_DIR}/${proj}
       -P ${CMAKE_CURRENT_LIST_DIR}/${proj}_patch.cmake
@@ -59,7 +59,7 @@ if(NOT DEFINED ${proj}_DIR AND NOT ${CMAKE_PROJECT_NAME}_USE_SYSTEM_${proj})
 	  -DUSE_CMAEvolutionStrategy:BOOL=ON
 	  -DUSE_LinearResampleInterpolator:BOOL=ON
 	  -DUSE_Simplex:BOOL=ON
-	  -DUSE_SimultaneousPerturbation:BOOL=ON
+	  -DUSE_SimultaneousPerturbation:BOOL=OFF
 	  -DUSE_StatisticalShapePenalty:BOOL=ON
       -DCMAKE_MACOSX_RPATH:BOOL=0
       # location of elastix.exe and transformix.exe in the build tree:
